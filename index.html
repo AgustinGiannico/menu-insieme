@@ -2,7 +2,8 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menú Insieme</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -28,37 +29,21 @@
 
     let currentLang = localStorage.getItem("lang") || "es";
 
-    // Función parseCSV más robusta
     function parseCSV(text) {
+      let cleanedText = text.replace(/"/g, '');
       const delimiter = ",";
-      const rows = text.trim().split("\n");
-      const parsedData = [];
+      const rows = cleanedText.trim().split("\n").map(r => r.split(delimiter));
 
-      // Extraer encabezados y limpiarlos
-      const headers = rows.shift().split(delimiter).map(h => h.replace(/"/g, '').trim().toLowerCase());
+      const headers = rows.shift().map(h => h.trim().toLowerCase());
 
-      rows.forEach(row => {
-          // Expresión regular para manejar celdas con comas envueltas en comillas dobles
-          // Esta es la clave para manejar tus descripciones largas
-          const values = row.match(/(".*?"|[^,]*)(?:\s*,|\s*$)/g);
-          
-          // Si no se encuentra un valor o la longitud no coincide, intentar una división simple como fallback
-          const rowValues = (values && values.length === headers.length) ? values : row.split(delimiter);
-
-          if (rowValues.length === headers.length) {
-              const obj = {};
-              headers.forEach((h, i) => {
-                  // Limpiamos comillas dobles residuales y trim
-                  obj[h] = (rowValues[i] || "").replace(/"/g, '').trim(); 
-              });
-              parsedData.push(obj);
-          } else {
-                 console.warn("Fila ignorada por formato incorrecto:", row);
-             }
+      return rows.map(r => {
+        const obj = {};
+        headers.forEach((h, i) => {
+          obj[h] = (r[i] || "").trim();
+        });
+        return obj;
       });
-      return parsedData;
     }
-
 
     function renderMenu(data) {
       const container = document.getElementById("menu");
@@ -66,10 +51,8 @@
 
       const categorias = {};
       data.forEach(item => {
-        if (item.categoria && item.categoria.trim() !== '') {
-          if (!categorias[item.categoria]) categorias[item.categoria] = [];
-          categorias[item.categoria].push(item);
-        }
+        if (!categorias[item.categoria]) categorias[item.categoria] = [];
+        categorias[item.categoria].push(item);
       });
 
       Object.keys(categorias).forEach(cat => {
@@ -80,8 +63,8 @@
         categorias[cat].sort((a, b) => Number(a.orden) - Number(b.orden));
 
         categorias[cat].forEach(item => {
-            // CLAVE 🔑: Reemplazamos el punto decimal (de Sheets) por una coma para la visualización
-            const precioDisplay = item.precio.replace('.', ','); 
+            // CLAVE 🔑: Reemplazamos el punto decimal por una coma para la visualización
+            const precioDisplay = item.precio.replace('.', ','); 
             
             const div = document.createElement("div");
             div.className = "menu-item";
@@ -89,9 +72,8 @@
               <div class="item-info">
                 <h3>${item.nombre}</h3>
                 <p>${item.descripcion}</p>
-            </div>
-              <span class="precio">${precioDisplay}</span>
-          `;
+              </div>
+              <span class="precio">${precioDisplay}</span>           `;
           section.appendChild(div);
         });
 

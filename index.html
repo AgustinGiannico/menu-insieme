@@ -2,111 +2,135 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menú Insieme</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú Insieme</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <header>
-    <img src="logo.png" alt="Logo Insieme" class="logo">
-    <div class="lang-switch">
-      <button id="btn-es" class="active">Español</button>
-      <button id="btn-en">English</button>
-    </div>
-  </header>
+  <header>
+    <img src="logo.png" alt="Logo Insieme" class="logo">
+    <div class="lang-switch">
+      <button id="btn-es" class="active">Español</button>
+      <button id="btn-en">English</button>
+    </div>
+  </header>
 
-  <main id="menu"></main>
+  <main id="menu"></main>
 
-  <script>
-    const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=csv";
-    const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=csv";
+    <footer>
+        <p>Los datos se cargan automáticamente desde Google Sheets.</p>
+    </footer>
 
-    let currentLang = localStorage.getItem("lang") || "es";
+  <script>
+    const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=csv";
+    const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=csv";
 
-    function parseCSV(text) {
-      let cleanedText = text.replace(/"/g, '');
-      const delimiter = ",";
-      const rows = cleanedText.trim().split("\n").map(r => r.split(delimiter));
+    let currentLang = localStorage.getItem("lang") || "es";
 
-      const headers = rows.shift().map(h => h.trim().toLowerCase());
+    // Función parseCSV más robusta
+    function parseCSV(text) {
+      const delimiter = ",";
+      const rows = text.trim().split("\n");
+      const parsedData = [];
 
-      return rows.map(r => {
-        const obj = {};
-        headers.forEach((h, i) => {
-          obj[h] = (r[i] || "").trim();
-        });
-        return obj;
-      });
-    }
+      // Extraer encabezados y limpiarlos
+      const headers = rows.shift().split(delimiter).map(h => h.replace(/"/g, '').trim().toLowerCase());
 
-    function renderMenu(data) {
-      const container = document.getElementById("menu");
-      container.innerHTML = "";
+      rows.forEach(row => {
+          // Expresión regular para manejar celdas con comas envueltas en comillas dobles
+          // Esta es la clave para manejar tus descripciones largas
+          const values = row.match(/(".*?"|[^,]*)(?:\s*,|\s*$)/g);
+          
+          // Si no se encuentra un valor o la longitud no coincide, intentar una división simple como fallback
+          const rowValues = (values && values.length === headers.length) ? values : row.split(delimiter);
 
-      const categorias = {};
-      data.forEach(item => {
-        if (!categorias[item.categoria]) categorias[item.categoria] = [];
-        categorias[item.categoria].push(item);
-      });
+          if (rowValues.length === headers.length) {
+              const obj = {};
+              headers.forEach((h, i) => {
+                  // Limpiamos comillas dobles residuales y trim
+                  obj[h] = (rowValues[i] || "").replace(/"/g, '').trim(); 
+              });
+              parsedData.push(obj);
+          } else {
+                 console.warn("Fila ignorada por formato incorrecto:", row);
+             }
+      });
+      return parsedData;
+    }
 
-      Object.keys(categorias).forEach(cat => {
-        const section = document.createElement("section");
-        section.className = "menu-section";
-        section.innerHTML = `<h2>${cat}</h2>`;
 
-        categorias[cat].sort((a, b) => Number(a.orden) - Number(b.orden));
+    function renderMenu(data) {
+      const container = document.getElementById("menu");
+      container.innerHTML = "";
 
-        categorias[cat].forEach(item => {
-          const div = document.createElement("div");
-          div.className = "menu-item";
-          div.innerHTML = `
-            <div class="item-info">
-              <h3>${item.nombre}</h3>
-              <p>${item.descripcion}</p>
-            </div>
-            <span class="precio">${item.precio}</span>
-          `;
-          section.appendChild(div);
-        });
+      const categorias = {};
+      data.forEach(item => {
+        if (item.categoria && item.categoria.trim() !== '') {
+          if (!categorias[item.categoria]) categorias[item.categoria] = [];
+          categorias[item.categoria].push(item);
+        }
+      });
 
-        container.appendChild(section);
-      });
-    }
+      Object.keys(categorias).forEach(cat => {
+        const section = document.createElement("section");
+        section.className = "menu-section";
+        section.innerHTML = `<h2>${cat}</h2>`;
 
-    function loadMenu() {
-      const url = currentLang === "es" ? CSV_ES : CSV_EN;
-      fetch(url)
-        .then(r => r.text())
-        .then(text => renderMenu(parseCSV(text)))
-        .catch(err => console.error("Error al cargar el menú:", err));
-    }
+        categorias[cat].sort((a, b) => Number(a.orden) - Number(b.orden));
 
-    document.getElementById("btn-es").onclick = () => {
-      currentLang = "es";
-      localStorage.setItem("lang", "es");
-      document.getElementById("btn-es").classList.add("active");
-      document.getElementById("btn-en").classList.remove("active");
-      loadMenu();
-    };
+        categorias[cat].forEach(item => {
+            // CLAVE 🔑: Reemplazamos el punto decimal (de Sheets) por una coma para la visualización
+            const precioDisplay = item.precio.replace('.', ','); 
+            
+            const div = document.createElement("div");
+            div.className = "menu-item";
+            div.innerHTML = `
+              <div class="item-info">
+                <h3>${item.nombre}</h3>
+                <p>${item.descripcion}</p>
+            </div>
+              <span class="precio">${precioDisplay}</span>
+          `;
+          section.appendChild(div);
+        });
 
-    document.getElementById("btn-en").onclick = () => {
-      currentLang = "en";
-      localStorage.setItem("lang", "en");
-      document.getElementById("btn-en").classList.add("active");
-      document.getElementById("btn-es").classList.remove("active");
-      loadMenu();
-    };
+        container.appendChild(section);
+      });
+    }
 
-    window.addEventListener("DOMContentLoaded", () => {
-      if (currentLang === "en") {
-        document.getElementById("btn-en").classList.add("active");
-        document.getElementById("btn-es").classList.remove("active");
-      }
-      loadMenu();
-    });
-  </script>
+    function loadMenu() {
+      const url = currentLang === "es" ? CSV_ES : CSV_EN;
+      fetch(url)
+        .then(r => r.text())
+        .then(text => renderMenu(parseCSV(text)))
+        .catch(err => console.error("Error al cargar el menú:", err));
+    }
+
+    document.getElementById("btn-es").onclick = () => {
+      currentLang = "es";
+      localStorage.setItem("lang", "es");
+      document.getElementById("btn-es").classList.add("active");
+      document.getElementById("btn-en").classList.remove("active");
+      loadMenu();
+    };
+
+    document.getElementById("btn-en").onclick = () => {
+      currentLang = "en";
+      localStorage.setItem("lang", "en");
+      document.getElementById("btn-en").classList.add("active");
+      document.getElementById("btn-es").classList.remove("active");
+      loadMenu();
+    };
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (currentLang === "en") {
+        document.getElementById("btn-en").classList.add("active");
+        document.getElementById("btn-es").classList.remove("active");
+      }
+      loadMenu();
+    });
+  </script>
 </body>
 
 </html>

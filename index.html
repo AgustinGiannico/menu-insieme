@@ -8,17 +8,17 @@
 </head>
 <body>
   <header>
-    <h1 id="titulo">Menú Insieme</h1>
+    <img src="logo.png" alt="Logo Insieme" class="logo">
     <div class="lang-switch">
-      <button id="btn-es" class="active">ES</button>
-      <button id="btn-en">EN</button>
+      <button id="btn-es" class="active">Español</button>
+      <button id="btn-en">English</button>
     </div>
   </header>
 
   <main id="menu"></main>
 
   <footer>
-    <p id="nota">Los precios y nombres se cargan desde Google Sheets.</p>
+    <p>Los datos se cargan automáticamente desde Google Sheets.</p>
   </footer>
 
   <script>
@@ -28,9 +28,14 @@
     let currentLang = localStorage.getItem("lang") || "es";
 
     function parseCSV(text) {
-      const rows = text.trim().split("\n").map(r => r.split(","));
-      const headers = rows.shift();
-      return rows.map(r => Object.fromEntries(r.map((val, i) => [headers[i].trim(), val.trim()])));
+      const delimiter = text.includes(";") ? ";" : ",";
+      const rows = text.trim().split("\n").map(r => r.split(delimiter));
+      const headers = rows.shift().map(h => h.trim().toLowerCase());
+      return rows.map(r => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = (r[i] || "").trim());
+        return obj;
+      });
     }
 
     function renderMenu(data) {
@@ -38,7 +43,6 @@
       container.innerHTML = "";
 
       const categorias = {};
-
       data.forEach(item => {
         if (!categorias[item.categoria]) categorias[item.categoria] = [];
         categorias[item.categoria].push(item);
@@ -49,12 +53,16 @@
         section.className = "menu-section";
         section.innerHTML = `<h2>${cat}</h2>`;
 
+        categorias[cat].sort((a, b) => Number(a.orden) - Number(b.orden));
+
         categorias[cat].forEach(item => {
           const div = document.createElement("div");
           div.className = "menu-item";
           div.innerHTML = `
-            <span class="nombre">${item.nombre}</span>
-            <span class="descripcion">${item.descripcion}</span>
+            <div class="item-info">
+              <h3>${item.nombre}</h3>
+              <p>${item.descripcion}</p>
+            </div>
             <span class="precio">${item.precio}</span>
           `;
           section.appendChild(div);
@@ -68,7 +76,8 @@
       const url = currentLang === "es" ? CSV_ES : CSV_EN;
       fetch(url)
         .then(r => r.text())
-        .then(text => renderMenu(parseCSV(text)));
+        .then(text => renderMenu(parseCSV(text)))
+        .catch(err => console.error("Error al cargar el menú:", err));
     }
 
     document.getElementById("btn-es").onclick = () => {

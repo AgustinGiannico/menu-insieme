@@ -1,81 +1,99 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #fff3d9;
+  background: #ffde59;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  color: #000;
   margin: 0;
   padding: 0;
-  color: #333;
 }
 
 header {
-  background-color: #f04e23;
+  background: #000;
   color: white;
   text-align: center;
-  padding: 1rem;
-  position: relative;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-.lang-switch {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
+.logo {
+  height: 80px;
 }
 
 .lang-switch button {
-  background-color: white;
-  color: #f04e23;
-  border: none;
-  padding: .4rem .8rem;
-  border-radius: 4px;
-  margin-left: .4rem;
+  background: #222;
+  border: 1px solid #fff;
+  color: white;
+  padding: 6px 12px;
+  margin: 0 4px;
   cursor: pointer;
-  font-weight: bold;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-.lang-switch .active {
-  background-color: #f04e23;
-  color: white;
+.lang-switch button.active {
+  background: #c20000;
+  border-color: #c20000;
+}
+
+main {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+  padding: 40px;
+  justify-content: center;
 }
 
 .menu-section {
-  max-width: 800px;
-  margin: 2rem auto;
-  background: white;
+  background: #fdf1c7;
   border-radius: 10px;
-  padding: 1rem 1.5rem;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  padding: 20px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
 }
 
 .menu-section h2 {
-  border-bottom: 2px solid #f04e23;
-  padding-bottom: .3rem;
-  margin-bottom: 1rem;
+  background: #e53935;
+  color: white;
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 18px;
+  margin-bottom: 15px;
 }
 
 .menu-item {
-  margin: .6rem 0;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+  padding: 8px 0;
 }
 
-.nombre {
-  display: block;
+.menu-item:last-child {
+  border: none;
+}
+
+.item-info h3 {
+  margin: 0;
+  font-size: 16px;
   font-weight: bold;
 }
 
-.descripcion {
-  display: block;
-  font-size: .9rem;
-  color: #555;
+.item-info p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #333;
 }
 
 .precio {
-  display: block;
-  text-align: right;
   font-weight: bold;
-  color: #f04e23;
-  margin-top: .2rem;
+  align-self: center;
 }
 
 footer {
   text-align: center;
-  padding: 1rem;
-  color: #666;
+  padding: 20px;
+  background: #000;
+  color: white;
+  font-size: 14px;
 }

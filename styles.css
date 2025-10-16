@@ -1,0 +1,81 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #fff3d9;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+header {
+  background-color: #f04e23;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  position: relative;
+}
+
+.lang-switch {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.lang-switch button {
+  background-color: white;
+  color: #f04e23;
+  border: none;
+  padding: .4rem .8rem;
+  border-radius: 4px;
+  margin-left: .4rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.lang-switch .active {
+  background-color: #f04e23;
+  color: white;
+}
+
+.menu-section {
+  max-width: 800px;
+  margin: 2rem auto;
+  background: white;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.menu-section h2 {
+  border-bottom: 2px solid #f04e23;
+  padding-bottom: .3rem;
+  margin-bottom: 1rem;
+}
+
+.menu-item {
+  margin: .6rem 0;
+}
+
+.nombre {
+  display: block;
+  font-weight: bold;
+}
+
+.descripcion {
+  display: block;
+  font-size: .9rem;
+  color: #555;
+}
+
+.precio {
+  display: block;
+  text-align: right;
+  font-weight: bold;
+  color: #f04e23;
+  margin-top: .2rem;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  color: #666;
+}

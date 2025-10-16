@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú Insieme</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1 id="titulo">Menú Insieme</h1>
+    <div class="lang-switch">
+      <button id="btn-es" class="active">ES</button>
+      <button id="btn-en">EN</button>
+    </div>
+  </header>
+
+  <main id="menu"></main>
+
+  <footer>
+    <p id="nota">Los precios y nombres se cargan desde Google Sheets.</p>
+  </footer>
+
+  <script>
+    const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=csv";
+    const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=csv";
+
+    let currentLang = localStorage.getItem("lang") || "es";
+
+    function parseCSV(text) {
+      const rows = text.trim().split("\n").map(r => r.split(","));
+      const headers = rows.shift();
+      return rows.map(r => Object.fromEntries(r.map((val, i) => [headers[i].trim(), val.trim()])));
+    }
+
+    function renderMenu(data) {
+      const container = document.getElementById("menu");
+      container.innerHTML = "";
+
+      const categorias = {};
+
+      data.forEach(item => {
+        if (!categorias[item.categoria]) categorias[item.categoria] = [];
+        categorias[item.categoria].push(item);
+      });
+
+      Object.keys(categorias).forEach(cat => {
+        const section = document.createElement("section");
+        section.className = "menu-section";
+        section.innerHTML = `<h2>${cat}</h2>`;
+
+        categorias[cat].forEach(item => {
+          const div = document.createElement("div");
+          div.className = "menu-item";
+          div.innerHTML = `
+            <span class="nombre">${item.nombre}</span>
+            <span class="descripcion">${item.descripcion}</span>
+            <span class="precio">${item.precio}</span>
+          `;
+          section.appendChild(div);
+        });
+
+        container.appendChild(section);
+      });
+    }
+
+    function loadMenu() {
+      const url = currentLang === "es" ? CSV_ES : CSV_EN;
+      fetch(url)
+        .then(r => r.text())
+        .then(text => renderMenu(parseCSV(text)));
+    }
+
+    document.getElementById("btn-es").onclick = () => {
+      currentLang = "es";
+      localStorage.setItem("lang", "es");
+      document.getElementById("btn-es").classList.add("active");
+      document.getElementById("btn-en").classList.remove("active");
+      loadMenu();
+    };
+
+    document.getElementById("btn-en").onclick = () => {
+      currentLang = "en";
+      localStorage.setItem("lang", "en");
+      document.getElementById("btn-en").classList.add("active");
+      document.getElementById("btn-es").classList.remove("active");
+      loadMenu();
+    };
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (currentLang === "en") {
+        document.getElementById("btn-en").classList.add("active");
+        document.getElementById("btn-es").classList.remove("active");
+      }
+      loadMenu();
+    });
+  </script>
+</body>
+</html>

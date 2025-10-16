@@ -1,125 +1,108 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menú Insieme</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú Insieme</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <img src="logo.png" alt="Logo Insieme" class="logo">
-    <div class="lang-switch">
-      <button id="btn-es" class="active">Español</button>
-      <button id="btn-en">English</button>
-    </div>
-  </header>
+  <header>
+    <img src="logo.png" alt="Logo Insieme" class="logo">
+    <div class="lang-switch">
+      <button id="btn-es" class="active">Español</button>
+      <button id="btn-en">English</button>
+    </div>
+  </header>
 
-  <main id="menu"></main>
+  <main id="menu"></main>
 
-  <footer>
-    <p>Los datos se cargan automáticamente desde Google Sheets.</p>
-  </footer>
+  <footer>
+    <p>Los datos se cargan automáticamente desde Google Sheets.</p>
+  </footer>
 
-  <script>
-    // Reemplaza estas URLs con las URLs de tu tío si son diferentes
-    const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=csv";
-    const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=csv";
+  <script>
+    const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=csv";
+        const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=csv";
 
-    let currentLang = localStorage.getItem("lang") || "es";
+    let currentLang = localStorage.getItem("lang") || "es";
 
-    function parseCSV(text) {
-      // 1. Elimina las comillas dobles que usa Google Sheets en el CSV
-      let cleanedText = text.replace(/"/g, ''); 
-      
-      // Forzamos el uso de la coma, ya que es el formato de Google Sheets
-      const delimiter = ","; 
-      
-      // Dividimos el texto en filas y luego cada fila en datos individuales
-      const rows = cleanedText.trim().split("\n").map(r => r.split(delimiter)); 
-      
-      // Tomamos el encabezado y lo convertimos a minúsculas para coincidir con las propiedades del objeto (item.nombre, item.precio, etc.)
-      const headers = rows.shift().map(h => h.trim().toLowerCase()); 
+    function parseCSV(text) {
+      const delimiter = text.includes(";") ? ";" : ",";
+      const rows = text.trim().split("\n").map(r => r.split(delimiter));
+      const headers = rows.shift().map(h => h.trim().toLowerCase());
+      return rows.map(r => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = (r[i] || "").trim());
+        return obj;
+      });
+    }
 
-      return rows.map(r => {
-        const obj = {};
-        headers.forEach((h, i) => {
-            // Usamos || "" para manejar posibles campos vacíos al final de la fila
-            obj[h] = (r[i] || "").trim();
-        });
-        return obj;
-      });
-    }
+    function renderMenu(data) {
+      const container = document.getElementById("menu");
+      container.innerHTML = "";
 
-    function renderMenu(data) {
-      const container = document.getElementById("menu");
-      container.innerHTML = "";
+      const categorias = {};
+      data.forEach(item => {
+        if (!categorias[item.categoria]) categorias[item.categoria] = [];
+        categorias[item.categoria].push(item);
+      });
 
-      const categorias = {};
-      // Filtramos filas vacías y las agrupamos por 'categoria'
-      data.forEach(item => {
-        if (item.categoria && item.categoria.trim() !== '') {
-          if (!categorias[item.categoria]) categorias[item.categoria] = [];
-          categorias[item.categoria].push(item);
-        }
-      });
+      Object.keys(categorias).forEach(cat => {
+        const section = document.createElement("section");
+        section.className = "menu-section";
+        section.innerHTML = `<h2>${cat}</h2>`;
 
-      Object.keys(categorias).forEach(cat => {
-        const section = document.createElement("section");
-        section.className = "menu-section";
-        section.innerHTML = `<h2>${cat}</h2>`;
+        categorias[cat].sort((a, b) => Number(a.orden) - Number(b.orden));
 
-        // Ordenamos por la columna 'orden' (cuidado con posibles valores no numéricos)
-        categorias[cat].sort((a, b) => Number(a.orden) - Number(b.orden));
+        categorias[cat].forEach(item => {
+          const div = document.createElement("div");
+          div.className = "menu-item";
+          div.innerHTML = `
+            <div class="item-info">
+              <h3>${item.nombre}</h3>
+              <p>${item.descripcion}</p>
+            </div>
+            <span class="precio">${item.precio}</span>
+          `;
+          section.appendChild(div);
+        });
 
-        categorias[cat].forEach(item => {
-          const div = document.createElement("div");
-          div.className = "menu-item";
-          div.innerHTML = `
-            <div class="item-info">
-              <h3>${item.nombre}</h3>
-              <p>${item.descripcion}</p>
-            </div>
-            <span class="precio">${item.precio}</span>
-          `;
-          section.appendChild(div);
-        });
+        container.appendChild(section);
+      });
+    }
 
-        container.appendChild(section);
-      });
-    }
+    function loadMenu() {
+      const url = currentLang === "es" ? CSV_ES : CSV_EN;
+      fetch(url)
+        .then(r => r.text())
+        .then(text => renderMenu(parseCSV(text)))
+        .catch(err => console.error("Error al cargar el menú:", err));
+    }
 
-    function loadMenu() {
-      const url = currentLang === "es" ? CSV_ES : CSV_EN;
-      fetch(url)
-        .then(r => r.text())
-        .then(text => renderMenu(parseCSV(text)))
-        .catch(err => console.error("Error al cargar el menú:", err));
-    }
+    document.getElementById("btn-es").onclick = () => {
+      currentLang = "es";
+      localStorage.setItem("lang", "es");
+      document.getElementById("btn-es").classList.add("active");
+      document.getElementById("btn-en").classList.remove("active");
+      loadMenu();
+    };
 
-    document.getElementById("btn-es").onclick = () => {
-      currentLang = "es";
-      localStorage.setItem("lang", "es");
-      document.getElementById("btn-es").classList.add("active");
-      document.getElementById("btn-en").classList.remove("active");
-      loadMenu();
-    };
+    document.getElementById("btn-en").onclick = () => {
+      currentLang = "en";
+      localStorage.setItem("lang", "en");
+      document.getElementById("btn-en").classList.add("active");
+      document.getElementById("btn-es").classList.remove("active");
+      loadMenu();
+    };
 
-    document.getElementById("btn-en").onclick = () => {
-      currentLang = "en";
-      localStorage.setItem("lang", "en");
-      document.getElementById("btn-en").classList.add("active");
-      document.getElementById("btn-es").classList.remove("active");
-      loadMenu();
-    };
-
-    window.addEventListener("DOMContentLoaded", () => {
-      if (currentLang === "en") {
-        document.getElementById("btn-en").classList.add("active");
-        document.getElementById("btn-es").classList.remove("active");
-      }
-      loadMenu();
-    });
-  </script>
+    window.addEventListener("DOMContentLoaded", () => {
+      if (currentLang === "en") {
+        document.getElementById("btn-en").classList.add("active");
+        document.getElementById("btn-es").classList.remove("active");
+      }
+      loadMenu();
+    });
+  </script>
 </body>
 </html>

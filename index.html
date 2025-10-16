@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menú Insieme</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <header>
     <img src="logo.png" alt="Logo Insieme" class="logo">
@@ -19,17 +21,22 @@
 
   <script>
     const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=csv";
-        const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=csv";
+    const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=csv";
 
     let currentLang = localStorage.getItem("lang") || "es";
 
     function parseCSV(text) {
-      const delimiter = text.includes(";") ? ";" : ",";
-      const rows = text.trim().split("\n").map(r => r.split(delimiter));
+      let cleanedText = text.replace(/"/g, '');
+      const delimiter = ",";
+      const rows = cleanedText.trim().split("\n").map(r => r.split(delimiter));
+
       const headers = rows.shift().map(h => h.trim().toLowerCase());
+
       return rows.map(r => {
         const obj = {};
-        headers.forEach((h, i) => obj[h] = (r[i] || "").trim());
+        headers.forEach((h, i) => {
+          obj[h] = (r[i] || "").trim();
+        });
         return obj;
       });
     }
@@ -101,4 +108,5 @@
     });
   </script>
 </body>
+
 </html>

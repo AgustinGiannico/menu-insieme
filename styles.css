@@ -1,38 +1,40 @@
 body {
+    background: #ffde59;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #000;
     margin: 0;
-    font-family: Arial, sans-serif; /* O la fuente que estés usando */
-    background-color: #F8E7C5; /* El color amarillo claro para el fondo principal */
+    padding: 0;
 }
 
-/* 2. Definir el estilo para la barra negra del header */
 header {
-    background-color: #1a1a1a; /* Negro oscuro */
-    padding: 10px 5%; /* Un poco de padding arriba/abajo, y 5% a los lados */
-    display: flex;
-    justify-content: space-between; /* Para separar el logo de los botones de idioma */
-    align-items: center;
-    position: sticky; /* Opcional: Para que se quede arriba al hacer scroll */
-    top: 0;
-    z-index: 1000;
-}
-
-/* 3. Asegurar que el logo y botones se vean bien en el header */
-.logo {
-    max-height: 50px; /* Ajusta este valor si tu logo es más grande */
-}
-
-.lang-switch button {
-    /* Estilos para que los botones se vean bien sobre el fondo negro */
+    background: #000;
     color: white;
-    background-color: transparent;
-    border: 1px solid white;
-    padding: 5px 10px;
-    cursor: pointer;
-    margin-left: 5px;
+    text-align: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
+
+.logo {
+    height: 80px;
+}
+    
+.lang-switch button {
+    background: #222;
+    border: 1px solid #fff;
+    color: white;
+    padding: 6px 12px;
+    margin: 0 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
 .lang-switch button.active {
-    background-color: #d9534f; /* Rojo de activación */
-    border-color: #d9534f;
+    background: #c20000;
+    border-color: #c20000;
 }
 
 main {
@@ -64,32 +66,31 @@ main {
 
 .menu-item {
     display: flex;
-    justify-content: space-between; /* Mantiene el nombre/descripción y precio separados */
-    align-items: flex-start; /* Alinea los elementos en la parte superior */
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #ccc;
+    padding: 8px 0;
+}
+
+.menu-item:last-child {
+    border: none;
 }
 
 .item-info {
-    /* Permitimos que el área de información ocupe la mayor parte del espacio */
     flex-grow: 1;
-    margin-right: 15px; /* Espacio entre el texto y el precio */
-    /* Aquí es donde debemos enfocarnos en la reducción de espacio */
+    margin-right: 15px;
 }
 
 .item-info h3 {
-    /* Ajustamos el título para que no tenga tanto espacio arriba/abajo */
-    margin: 0 0 5px 0; /* Solo un pequeño margen inferior */
-    font-size: 1.1em;
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .item-info p {
-    /* CLAVE: Reducimos el margen y el padding de la descripción */
-    margin: 0; /* Elimina el margen por defecto, reduciendo el espacio en blanco */
-    padding: 0; 
-    font-size: 0.9em;
-    color: #666;
-    line-height: 1.2;
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: #333;
 }
 
 .precio {

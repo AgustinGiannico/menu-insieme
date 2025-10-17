@@ -19,19 +19,24 @@
 
   <main id="menu"></main>
 
-    <footer>
-        <p>Los datos se cargan automáticamente desde Google Sheets.</p>
-    </footer>
+    <footer>
+        <p>Los datos se cargan automáticamente desde Google Sheets.</p>
+    </footer>
 
   <script>
-    const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=csv";
-    const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=csv";
+    // URLs DE TSV (Tab Separated Values)
+    const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=tsv";
+    const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=tsv";
 
     let currentLang = localStorage.getItem("lang") || "es";
 
+    // FUNCIÓN DE PARSEO CORREGIDA PARA USAR TABULACIÓN (\t)
     function parseCSV(text) {
       let cleanedText = text.replace(/"/g, '');
-      const delimiter = ",";
+      
+      // CLAVE 🔑: El delimitador ahora es la tabulación
+      const delimiter = "\t"; 
+      
       const rows = cleanedText.trim().split("\n").map(r => r.split(delimiter));
 
       const headers = rows.shift().map(h => h.trim().toLowerCase());
@@ -45,14 +50,18 @@
       });
     }
 
+    // FUNCIÓN DE RENDERIZADO (con corrección de precios)
     function renderMenu(data) {
       const container = document.getElementById("menu");
       container.innerHTML = "";
 
       const categorias = {};
       data.forEach(item => {
-        if (!categorias[item.categoria]) categorias[item.categoria] = [];
-        categorias[item.categoria].push(item);
+        // Aseguramos que la categoría exista
+        if (item.categoria && item.categoria.trim() !== '') {
+          if (!categorias[item.categoria]) categorias[item.categoria] = [];
+          categorias[item.categoria].push(item);
+        }
       });
 
       Object.keys(categorias).forEach(cat => {
@@ -63,9 +72,9 @@
         categorias[cat].sort((a, b) => Number(a.orden) - Number(b.orden));
 
         categorias[cat].forEach(item => {
-            // CLAVE 🔑: Reemplazamos el punto decimal por una coma para la visualización
-            const precioDisplay = item.precio.replace('.', ','); 
-            
+            // Convertimos el punto decimal (de Sheets) a coma para la visualización
+            const precioDisplay = item.precio.replace('.', ','); 
+            
             const div = document.createElement("div");
             div.className = "menu-item";
             div.innerHTML = `

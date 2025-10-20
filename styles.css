@@ -47,6 +47,7 @@ main {
     grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
     gap: 40px;
     padding: 50px 10%;
+    align-items: flex-start;
 }
 
 .menu-section {

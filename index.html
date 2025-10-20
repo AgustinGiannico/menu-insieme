@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menú Insieme</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú Insieme</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <img src="logo.png" alt="Logo Insieme" class="logo">
-    <div class="lang-switch">
-      <button id="btn-es" class="active">Español</button>
-      <button id="btn-en">English</button>
-    </div>
-  </header>
+  <header>
+    <img src="logo.png" alt="Logo Insieme" class="logo">
+    <div class="lang-switch">
+      <button id="btn-es" class="active">Español</button>
+      <button id="btn-en">English</button>
+    </div>
+  </header>
 
-  <main id="menu"></main>
-
-  <script>
+  <main id="menu"></main>
+          <script>
     // URLs DE TSV (Tab Separated Values)
     const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=tsv";
     const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=tsv";
@@ -30,7 +29,7 @@
       
       // CLAVE 🔑: El delimitador ahora es la tabulación
       const delimiter = "\t"; 
-      
+      
       const rows = cleanedText.trim().split("\n").map(r => r.split(delimiter));
 
       const headers = rows.shift().map(h => h.trim().toLowerCase());
@@ -44,7 +43,7 @@
       });
     }
 
-    // FUNCIÓN DE RENDERIZADO (con corrección de precios)
+    // FUNCIÓN DE RENDERIZADO CORREGIDA (Elimina <p> si la descripción es guion '-')
     function renderMenu(data) {
       const container = document.getElementById("menu");
       container.innerHTML = "";
@@ -69,12 +68,18 @@
             // Convertimos el punto decimal (de Sheets) a coma para la visualización
             const precioDisplay = item.precio.replace('.', ','); 
             
+            // CLAVE 🔑: Lógica para ocultar <p> si la descripción es un guion (-) o vacía
+            const descriptionContent = item.descripcion.trim();
+            const hasDescription = descriptionContent !== '' && descriptionContent !== '-';
+            
+            const descriptionHTML = hasDescription ? `<p>${item.descripcion}</p>` : '';
+            
             const div = document.createElement("div");
             div.className = "menu-item";
             div.innerHTML = `
               <div class="item-info">
                 <h3>${item.nombre}</h3>
-                <p>${item.descripcion}</p>
+                ${descriptionHTML} 
               </div>
               <span class="precio">${precioDisplay}</span>           `;
           section.appendChild(div);

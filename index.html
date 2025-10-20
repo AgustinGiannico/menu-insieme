@@ -17,108 +17,97 @@
 
   <main id="menu"></main>
 
-  <script>
-    // URLs DE TSV (Tab Separated Values)
-    const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=tsv";
-    const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=tsv";
+  <script>
+    const CSV_ES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=0&single=true&output=tsv";
+    const CSV_EN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4VPa8ow4x4m4F41Th2oqNbe7Bg0ZutxqQIm2wdXZVckHcAx0mN2bJrmlKJ9UjQprREnbHqzeazX-o/pub?gid=451612496&single=true&output=tsv";
 
-    let currentLang = localStorage.getItem("lang") || "es";
+    let currentLang = localStorage.getItem("lang") || "es";
 
-    // FUNCIÓN DE PARSEO CORREGIDA PARA USAR TABULACIÓN (\t)
-    function parseCSV(text) {
-      let cleanedText = text.replace(/"/g, '');
-      
-      // CLAVE 🔑: El delimitador ahora es la tabulación
-      const delimiter = "\t"; 
-      
-      const rows = cleanedText.trim().split("\n").map(r => r.split(delimiter));
+    function parseCSV(text) {
+      let cleanedText = text.replace(/"/g, '');
+      const delimiter = "\t";
+      const rows = cleanedText.trim().split("\n").map(r => r.split(delimiter));
+      const headers = rows.shift().map(h => h.trim().toLowerCase());
+      return rows.map(r => {
+        const obj = {};
+        headers.forEach((h, i) => {
+          obj[h] = (r[i] || "").trim();
+        });
+        return obj;
+      });
+    }
 
-      const headers = rows.shift().map(h => h.trim().toLowerCase());
+    function renderMenu(data) {
+      const container = document.getElementById("menu");
+      container.innerHTML = "";
 
-      return rows.map(r => {
-        const obj = {};
-        headers.forEach((h, i) => {
-          obj[h] = (r[i] || "").trim();
-        });
-        return obj;
-      });
-    }
+      const categorias = {};
+      data.forEach(item => {
+        if (item.categoria && item.categoria.trim() !== '') {
+          if (!categorias[item.categoria]) categorias[item.categoria] = [];
+          categorias[item.categoria].push(item);
+        }
+      });
 
-    // FUNCIÓN DE RENDERIZADO (con corrección de precios)
-    function renderMenu(data) {
-      const container = document.getElementById("menu");
-      container.innerHTML = "";
+      Object.keys(categorias).forEach(cat => {
+        const section = document.createElement("section");
+        section.className = "menu-section";
+        section.innerHTML = `<h2>${cat}</h2>`;
 
-      const categorias = {};
-      data.forEach(item => {
-        if (item.categoria && item.categoria.trim() !== '') {
-          if (!categorias[item.categoria]) categorias[item.categoria] = [];
-          categorias[item.categoria].push(item);
-        }
-      });
+        categorias[cat].sort((a, b) => Number(a.orden) - Number(b.orden));
 
-      Object.keys(categorias).forEach(cat => {
-        const section = document.createElement("section");
-        section.className = "menu-section";
-        section.innerHTML = `<h2>${cat}</h2>`;
+        categorias[cat].forEach(item => {
+          const precioDisplay = item.precio.replace('.', ',');
+          const hasDescription = item.descripcion && item.descripcion.trim() !== '' && item.descripcion.trim() !== '-';
+          const descriptionHTML = hasDescription ? `<p class="description">${item.descripcion}</p>` : '';
 
-        categorias[cat].sort((a, b) => Number(a.orden) - Number(b.orden));
+          const div = document.createElement("div");
+          div.className = "menu-item";
+          div.innerHTML = `
+            <div class="item-header">
+              <h3>${item.nombre}</h3>
+              <span class="price">${precioDisplay}</span>
+            </div>
+            ${descriptionHTML}
+          `;
+          section.appendChild(div);
+        });
 
-        categorias[cat].forEach(item => {
-            const precioDisplay = item.precio.replace('.', ','); 
-            
-            // CLAVE 🔑: Verifica si la descripción es un guion (-) o está vacía
-            const hasDescription = item.descripcion && item.descripcion.trim() !== '' && item.descripcion.trim() !== '-';
-            
-            // Prepara el HTML de la descripción
-            const descriptionHTML = hasDescription ? `<p>${item.descripcion}</p>` : '';
-            
-            const div = document.createElement("div");
-            div.className = "menu-item";
-            div.innerHTML = `
-              <div class="item-info">
-                <h3>${item.nombre}</h3>
-                ${descriptionHTML}                 </div>
-              <span class="precio">${precioDisplay}</span>           `;
-          section.appendChild(div);
-        });
+        container.appendChild(section);
+      });
+    }
 
-        container.appendChild(section);
-      });
-    }
+    function loadMenu() {
+      const url = currentLang === "es" ? CSV_ES : CSV_EN;
+      fetch(url)
+        .then(r => r.text())
+        .then(text => renderMenu(parseCSV(text)))
+        .catch(err => console.error("Error al cargar el menú:", err));
+    }
 
-    function loadMenu() {
-      const url = currentLang === "es" ? CSV_ES : CSV_EN;
-      fetch(url)
-        .then(r => r.text())
-        .then(text => renderMenu(parseCSV(text)))
-        .catch(err => console.error("Error al cargar el menú:", err));
-    }
+    document.getElementById("btn-es").onclick = () => {
+      currentLang = "es";
+      localStorage.setItem("lang", "es");
+      document.getElementById("btn-es").classList.add("active");
+      document.getElementById("btn-en").classList.remove("active");
+      loadMenu();
+    };
 
-    document.getElementById("btn-es").onclick = () => {
-      currentLang = "es";
-      localStorage.setItem("lang", "es");
-      document.getElementById("btn-es").classList.add("active");
-      document.getElementById("btn-en").classList.remove("active");
-      loadMenu();
-    };
+    document.getElementById("btn-en").onclick = () => {
+      currentLang = "en";
+      localStorage.setItem("lang", "en");
+      document.getElementById("btn-en").classList.add("active");
+      document.getElementById("btn-es").classList.remove("active");
+      loadMenu();
+    };
 
-    document.getElementById("btn-en").onclick = () => {
-      currentLang = "en";
-      localStorage.setItem("lang", "en");
-      document.getElementById("btn-en").classList.add("active");
-      document.getElementById("btn-es").classList.remove("active");
-      loadMenu();
-    };
-
-    window.addEventListener("DOMContentLoaded", () => {
-      if (currentLang === "en") {
-        document.getElementById("btn-en").classList.add("active");
-        document.getElementById("btn-es").classList.remove("active");
-      }
-      loadMenu();
-    });
-  </script>
+    window.addEventListener("DOMContentLoaded", () => {
+      if (currentLang === "en") {
+        document.getElementById("btn-en").classList.add("active");
+        document.getElementById("btn-es").classList.remove("active");
+      }
+      loadMenu();
+    });
+  </script>
 </body>
-
 </html>

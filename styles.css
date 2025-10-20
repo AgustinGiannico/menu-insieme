@@ -1,141 +1,142 @@
 body {
-    background: #F8E7C5;
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    color: #000;
-    margin: 0;
-    padding: 0;
+  background: #F8E7C5;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  color: #000;
+  margin: 0;
+  padding: 0;
 }
 
 header {
-    background: #1a1a1a;
-    color: white;
-    text-align: center;
-    padding: 20px 5%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+  background: #1a1a1a;
+  color: white;
+  text-align: center;
+  padding: 20px 5%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
 .logo {
-    height: 80px;
+  height: 80px;
 }
 
 .lang-switch {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .lang-switch button {
-    background: transparent;
-    border: 1px solid #fff;
-    color: white;
-    padding: 6px 12px;
-    margin: 0 4px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-    transition: background-color 0.2s;
+  background: transparent;
+  border: 1px solid #fff;
+  color: white;
+  padding: 6px 12px;
+  margin: 0 4px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.2s;
 }
 
 .lang-switch button.active {
-    background: #c20000;
-    border-color: #c20000;
+  background: #c20000;
+  border-color: #c20000;
 }
 
 main {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-    padding: 40px;
-    max-width: 1200px;
-    margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .menu-section {
-    background: white;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    padding: 15px 20px 10px 20px;
-    position: relative;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  padding: 20px;
+  position: relative;
 }
 
 .menu-section h2 {
-    position: absolute;
-    top: -15px;
-    left: 20px;
-    background: #e53935;
-    color: white;
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 3px;
-    font-size: 1em;
-    margin: 0;
-    text-transform: uppercase;
+  position: absolute;
+  top: -15px;
+  left: 20px;
+  background: #e53935;
+  color: white;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-size: 1em;
+  margin: 0;
+  text-transform: uppercase;
 }
 
 .menu-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
-    padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border-bottom: 1px dashed rgba(0,0,0,0.2);
+  padding: 10px 0;
 }
 
-.menu-section .menu-item:last-child {
-    border-bottom: none;
+.menu-item:last-child {
+  border-bottom: none;
 }
 
-.item-info {
-    flex-grow: 1;
-    margin-right: 15px;
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
-.item-info h3 {
-    margin: 0 0 3px 0;
-    font-size: 1em;
-    font-weight: bold;
+.item-header h3 {
+  margin: 0;
+  font-size: 1em;
+  font-weight: bold;
 }
 
-.item-info p {
-    margin: 0;
-    padding: 0;
-    font-size: 0.85em;
-    color: #666;
-    line-height: 1.2;
+.item-header .price {
+  font-weight: bold;
+  white-space: nowrap;
+  margin-left: 10px;
 }
 
-.precio {
-    font-weight: bold;
-    align-self: flex-start;
-    flex-shrink: 0;
-    white-space: nowrap;
-    margin-top: 2px;
-    font-size: 1em;
+.description {
+  font-size: 0.85em;
+  color: #555;
+  margin-top: 4px;
+  line-height: 1.3em;
+}
+
+.description:empty {
+  display: none;
 }
 
 footer {
-    text-align: center;
-    padding: 20px;
-    background-color: #1a1a1a;
-    color: #999;
-    font-size: 0.8em;
-    margin-top: 30px;
+  text-align: center;
+  padding: 20px;
+  background-color: #1a1a1a;
+  color: #999;
+  font-size: 0.8em;
+  margin-top: 30px;
 }
 
 @media (max-width: 768px) {
-    main {
-        grid-template-columns: 1fr;
-        padding: 20px;
-        gap: 25px;
-    }
+  main {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 25px;
+  }
 
-    .menu-section {
-        padding-top: 30px;
-    }
+  .menu-section {
+    padding-top: 30px;
+  }
 
-    .menu-section h2 {
-        top: -12px;
-        left: 15px;
-    }
+  .menu-section h2 {
+    top: -12px;
+    left: 15px;
+  }
 }

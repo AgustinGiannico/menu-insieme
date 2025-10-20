@@ -56,6 +56,7 @@
         categorias[cat].sort((a, b) => Number(a.orden) - Number(b.orden));
 
         categorias[cat].forEach(item => {
+          const precioDisplay = item.precio.replace('€', '').trim().replace('.', ',') + ' €';
           const hasDescription = item.descripcion && item.descripcion.trim() !== '' && item.descripcion.trim() !== '-';
           const descriptionHTML = hasDescription ? `<p>${item.descripcion}</p>` : '';
           const div = document.createElement("div");
@@ -65,7 +66,7 @@
               <h3>${item.nombre}</h3>
               ${descriptionHTML}
             </div>
-            <span class="precio">${precioDisplay} €</span>
+            <span class="precio">${precioDisplay}</span>
           `;
           section.appendChild(div);
         });
